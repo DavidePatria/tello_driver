@@ -1,6 +1,5 @@
 # tello_driver
 
-**DISCLAIMER: This package is an work-in-progress. I take no responsibility for any consequences of you using this software. The documentation might be broken, and features and API are considered VOLATILE presently.**
 
 ROS driver wrapper for DJI/Ryze Tello drone
 
@@ -27,13 +26,14 @@ Parameters:
 * `$ cd <CATKIN_WS/SRC>`
 * `$ git clone https://github.com/anqixu/TelloPy.git`
 * `$ cd TelloPy`
-* `$ sudo -H pip2 install -e .`
+
+using a virtual environment for python this is the sane thing to do, previously it was `sudo -H pip...`, big no no.
+* `$ pip install -e .`
 * `$ cd ..`
 * `$ git clone https://github.com/anqixu/h264_image_transport.git`
 * `$ git clone https://github.com/anqixu/tello_driver.git`
 * `$ cd ..`
 * `$ rosdep install h264_image_transport`
-* skip this step: `$ # rosdep install tello_driver # not working currently`
 * `$ catkin build tello_driver`
 
 Optionally, install the [following udev rules](https://github.com/anqixu/sixad_rumble/blob/master/misc/10-gamepads.rules) for PS3 gamepads; see instructions in comments on top of file.
@@ -47,19 +47,16 @@ Optionally, install the [following udev rules](https://github.com/anqixu/sixad_r
 To see the camera:
 * `$ rosrun rqt_image_view rqt_image_view /tello/image_raw/compressed`
 
-## Tele-operate the drone using a wired DualShock 3 gamepad
+This doesn't work apparently, but the camera is still accessible using *rviz* and subscribing to the topic.
 
-First check out the following and possibly adjust parameters / code / mappings:
-* [launch/joy_teleop.launch](launch/joy_teleop.launch)
-* [launch/logger.launch](launch/logger.launch)
-* [src/gamepad_marshall_node.py](src/gamepad_marshall_node.py)
+## Tested use-case
 
-Now run:
-* `$ roslaunch tello_driver devel.launch`
-
-## Connecting to multiple drones
-
-It is possible to connect to multiple Tello drones by using multiple USB WiFi dongles and a [Docker container running UDP proxy servers](wifi_docker_proxy).
+Launching `roslaunch tello_driver tello_node.launch` will start a node and connect to the drone. Then the usual topics will be available to receive publications.
+No controller was availble when testing the modified package.
 
 ## Known bugs
 * Sometimes, perhaps when taking off without moving gamepad analog sticks / sending commands to `/tello/cmd_vel`, further cmd_vel will not work; fix by restarting node, moving gamepad analog sticks / send a message to `/tello/cmd_vel` FIRST, then takeoff
+
+## Disclaimer:
+This was modified for personal needs and shared since a desperate attempt worked and the basic functions of the drone were fine. I'm not deep into the development of this package and cannot do much about other problems.
+Refer to the original repository for more details.
