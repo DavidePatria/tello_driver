@@ -8,11 +8,17 @@ import roslib; roslib.load_manifest('teleop_twist_keyboard')
 import rospy
 
 from geometry_msgs.msg import Twist
+from std_msgs.msg import Empty
 
 import sys, select, termios, tty
 
 msg = """
 Reading from the keyboard  and Publishing to Twist!
+
+---------------------------
+1 to takeoff
+2 to land
+
 ---------------------------
 Moving around:
    u    i    o
@@ -27,6 +33,9 @@ For Holonomic mode (strafing), hold down the shift key:
 
 t : up (+z)
 b : down (-z)
+
+[ to increase speed counterclock-wise
+] to increase speed clock-wise
 
 anything else : stop
 
@@ -56,6 +65,10 @@ moveBindings = {
         'M':(-1,1,0,0),
         't':(0,0,1,0),
         'b':(0,0,-1,0),
+
+        #ROTATION CONSIDERIG THAT A NEGATIVE NUMBER IS CLOCK-WISE, CONTROLLANDUM
+        ']':(0,0,0,-1),
+        '[':(0,0,0,1),
     }
 
 speedBindings={
@@ -70,7 +83,11 @@ speedBindings={
 class PublishThread(threading.Thread):
     def __init__(self, rate):
         super(PublishThread, self).__init__()
-        self.publisher = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
+        self.publisher = rospy.Publisher('/tello/cmd_vel', Twist, queue_size = 1)
+        #ADD SUBSCRIBERS FOR TAKEOFF AND LAND
+        self.pub_land = rospy.Publisher('/tello/land', Empty, queue_size = 1)
+        self.pub_takeoff = rospy.Publisher('/tello/takeoff', Empty, queue_size = 1)
+
         self.x = 0.0
         self.y = 0.0
         self.z = 0.0
@@ -197,11 +214,17 @@ if __name__=="__main__":
             elif key in speedBindings.keys():
                 speed = speed * speedBindings[key][0]
                 turn = turn * speedBindings[key][1]
-
                 print(vels(speed,turn))
                 if (status == 14):
                     print(msg)
                 status = (status + 1) % 15
+
+            #ADD LANDIND AND TAKEOFF COMMANDS
+            elif key == '1':
+                pub_thread.pub_takeoff.publish(Empty())
+            elif key == '2':
+                pub_thread.pub_land.publish(Empty())
+
             else:
                 # Skip updating cmd_vel if key timeout and robot already
                 # stopped.
