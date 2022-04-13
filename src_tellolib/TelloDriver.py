@@ -38,7 +38,7 @@ class TelloDriver:
         while self.alive:
             data = self.udp.recv(2048)
             if not data:
-                print('! Got empty from recv: %s' % str(data))
+                print(f'! Got empty from recv: {str(data)}')
                 self.alive = False
                 break
 
