@@ -21,8 +21,8 @@ class StandaloneVideoStream(object):
             if len(self.queue) == 0 and not self.closed:
                 self.cond.wait(2.0)
             data = bytes()
-            while 0 < len(self.queue) and len(data) + len(self.queue[0]) < size:
-                data = data + self.queue[0]
+            while len(self.queue) > 0 and len(data) + len(self.queue[0]) < size:
+                data += self.queue[0]
                 del self.queue[0]
         finally:
             self.cond.release()

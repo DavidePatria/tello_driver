@@ -190,11 +190,7 @@ class GamepadMarshallNode:
                 self.flip_dir = 0
 
         # Update agent bypass mode
-        if self.joy_state.L2:
-            self.agent_mode_t = rospy.Time.now()
-        else:
-            self.agent_mode_t = None
-
+        self.agent_mode_t = rospy.Time.now() if self.joy_state.L2 else None
         # Manual control mode
         if self.agent_mode_t is None:
             if not self.joy_state_prev.R2 and self.joy_state.R2:

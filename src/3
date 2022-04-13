@@ -49,9 +49,9 @@ class RospyLogger(logger.Logger):
 
 def notify_cmd_success(cmd, success):
     if success:
-        rospy.loginfo('%s command executed' % cmd)
+        rospy.loginfo(f'{cmd} command executed')
     else:
-        rospy.logwarn('%s command failed' % cmd)
+        rospy.logwarn(f'{cmd} command failed')
 
 
 class TelloNode(tello.Tello):
@@ -215,7 +215,7 @@ class TelloNode(tello.Tello):
                 container = av.open(vs)
                 break
             except BaseException as err:
-                rospy.logerr('fgrab: pyav stream failed - %s' % str(err))
+                rospy.logerr(f'fgrab: pyav stream failed - {str(err)}')
                 time.sleep(1.0)
 
         # Once connected, process frames till drone/stream closes
@@ -228,12 +228,12 @@ class TelloNode(tello.Tello):
                         img_msg = self.bridge.cv2_to_imgmsg(img, 'rgb8')
                         img_msg.header.frame_id = rospy.get_namespace()
                     except CvBridgeError as err:
-                        rospy.logerr('fgrab: cv bridge failed - %s' % str(err))
+                        rospy.logerr(f'fgrab: cv bridge failed - {str(err)}')
                         continue
                     self.pub_image_raw.publish(img_msg)
                 break
             except BaseException as err:
-                rospy.logerr('fgrab: pyav decoder failed - %s' % str(err))
+                rospy.logerr(f'fgrab: pyav decoder failed - {str(err)}')
 
     def cb_dyncfg(self, config, level):
         update_all = False
@@ -260,8 +260,7 @@ class TelloNode(tello.Tello):
         notify_cmd_success('Takeoff', success)
 
     def cb_throw_takeoff(self, msg):
-        success = self.throw_takeoff()
-        if success:
+        if success := self.throw_takeoff():
             rospy.loginfo('Drone set to auto-takeoff when thrown')
         else:
             rospy.logwarn('ThrowTakeoff command failed')

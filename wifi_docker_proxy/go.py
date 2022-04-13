@@ -126,15 +126,29 @@ def dispatcher():
         local_cmd_client_port = cfg['Session']['LOCAL_CMD_CLIENT_PORT']
         local_vid_server_port = cfg['Session']['LOCAL_VID_SERVER_PORT']
 
-        cmds.append(['docker', 'run',
-                     '-d', '--rm', '--privileged',
-                     '--env', 'DRONE_AP='+drone_ap,
-                     '--env', 'WIFI_DEV='+wifi_dev,
-                     '--env', 'LOCAL_CMD_CLIENT_PORT='+local_cmd_client_port,
-                     '--env', 'LOCAL_VID_SERVER_PORT='+local_vid_server_port,
-                     '--name', container_name,
-                     image_name])
-        cmds.append(['./setup_network.sh', container_name, wifi_dev])
+        cmds.extend(
+            (
+                [
+                    'docker',
+                    'run',
+                    '-d',
+                    '--rm',
+                    '--privileged',
+                    '--env',
+                    f'DRONE_AP={drone_ap}',
+                    '--env',
+                    f'WIFI_DEV={wifi_dev}',
+                    '--env',
+                    'LOCAL_CMD_CLIENT_PORT=' + local_cmd_client_port,
+                    '--env',
+                    'LOCAL_VID_SERVER_PORT=' + local_vid_server_port,
+                    '--name',
+                    container_name,
+                    image_name,
+                ],
+                ['./setup_network.sh', container_name, wifi_dev],
+            )
+        )
 
     elif args.task == 'connect':
         container_name = cfg['Session']['CONTAINER_NAME']
@@ -149,7 +163,7 @@ def dispatcher():
         cmds.append(['docker', 'kill', container_name])
 
     else:
-        print('Undefined task: [%s]' % args.task)
+        print(f'Undefined task: [{args.task}]')
         parser.print_help()
         sys.exit(1)
 

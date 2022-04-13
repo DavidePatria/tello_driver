@@ -16,7 +16,7 @@ for line in os.popen('iw dev').readlines():
     if len(line) <= 0:
         continue
     elif line.find('phy#') == 0:
-        phyid = 'phy'+line.strip()[4:]
+        phyid = f'phy{line.strip()[4:]}'
     elif line.find(wifi_dev) > 0:
         print(phyid)
         sys.exit(0)

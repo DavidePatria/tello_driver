@@ -99,21 +99,17 @@ class PublishThread(threading.Thread):
 
         # Set timeout to None if rate is 0 (causes new_message to wait forever
         # for new data to publish)
-        if rate != 0.0:
-            self.timeout = 1.0 / rate
-        else:
-            self.timeout = None
-
+        self.timeout = 1.0 / rate if rate != 0.0 else None
         self.start()
 
     def wait_for_subscribers(self):
         i = 0
         while not rospy.is_shutdown() and self.publisher.get_num_connections() == 0:
             if i == 4:
-                print("Waiting for subscriber to connect to {}".format(self.publisher.name))
+                print(f"Waiting for subscriber to connect to {self.publisher.name}")
             rospy.sleep(0.5)
             i += 1
-            i = i % 5
+            i %= 5
         if rospy.is_shutdown():
             raise Exception("Got shutdown request before subscribers connected")
 
@@ -167,10 +163,7 @@ class PublishThread(threading.Thread):
 def getKey(key_timeout):
     tty.setraw(sys.stdin.fileno())
     rlist, _, _ = select.select([sys.stdin], [], [], key_timeout)
-    if rlist:
-        key = sys.stdin.read(1)
-    else:
-        key = ''
+    key = sys.stdin.read(1) if rlist else ''
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
     return key
 
